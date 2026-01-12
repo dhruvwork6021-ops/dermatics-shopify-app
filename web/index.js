@@ -30,16 +30,18 @@ const app = express();
 ============================================================ */
 
 // Serve proxy assets
-app.use("/proxy-assets", express.static(join(process.cwd(), "proxy-assets")));
+app.use(
+  "/proxy-assets",
+  express.static(join(process.cwd(), "proxy-assets"))
+);
 
-// Handle ROOT because Shopify strips the proxy path
+/* ============================================================
+   SHOPIFY APP PROXY ROOT HANDLER (CRITICAL)
+   Shopify calls "/" NOT "/apps/derma-ai"
+============================================================ */
+
 app.get("/", (req, res) => {
-  // Shopify proxy requests ALWAYS contain this header
-  if (!req.headers["x-shopify-shop-domain"]) {
-    return res.status(404).send("Not a proxy request");
-  }
-
-  res.status(200).set("Content-Type", "text/html").send(`
+  res.status(200).send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,17 +50,21 @@ app.get("/", (req, res) => {
   <title>Dermatics AI – Skin & Hair Analysis</title>
 </head>
 <body>
+
   <div id="derma-ai-root"></div>
 
   <script>
+    // Auto-start AI flow on proxy page
     window.DERMA_AI_AUTO_START = true;
   </script>
 
   <script src="/proxy-assets/derma-ai.js"></script>
+
 </body>
 </html>
   `);
 });
+
 
 
 /* ============================================================
