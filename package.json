@@ -4,6 +4,7 @@
   "main": "web/index.js",
   "license": "UNLICENSED",
   "scripts": {
+    "start": "node web/index.js",
     "shopify": "shopify",
     "build": "shopify app build",
     "dev": "shopify app dev",
@@ -12,7 +13,13 @@
     "deploy": "shopify app deploy"
   },
   "dependencies": {
-    "@shopify/app": "^3.0.0",
-    "@shopify/cli": "^3.0.0"
+    "@shopify/app-bridge": "^3.7.11",
+    "@shopify/app-bridge-react": "^4.2.8",
+    "@shopify/app-bridge-utils": "^3.5.1",
+    "@shopify/polaris": "^13.9.5",
+    "@shopify/shopify-api": "^12.1.2",
+    "@shopify/shopify-app-express": "^6.0.3",
+    "@shopify/shopify-app-session-storage-sqlite": "^5.0.3",
+    "@tanstack/react-query": "^5.90.10"
   }
 }
