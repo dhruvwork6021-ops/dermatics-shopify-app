@@ -19,31 +19,47 @@ const app = express();
    SHOPIFY APP PROXY (PUBLIC PAGE)
    URL: /apps/derma-ai
 ============================================================ */
-app.get("/apps/derma-ai", (req, res) => {
-  res.status(200).send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Dermatics AI</title>
-      </head>
-      <body>
-        <h1>DERMA PROXY OK</h1>
-        <script src="/proxy-assets/derma-ai.js"></script>
-      </body>
-    </html>
+/* ============================================================
+   APP PROXY ROUTE (PUBLIC – NO AUTH)
+   URL: /apps/derma-ai  and /apps/derma-ai/
+============================================================ */
+
+/* ============================================================
+   SHOPIFY APP PROXY ROOT HANDLER
+   Shopify forwards /apps/derma-ai  -->  /
+============================================================ */
+
+// Serve proxy assets
+app.use("/proxy-assets", express.static(join(process.cwd(), "proxy-assets")));
+
+// Handle ROOT because Shopify strips the proxy path
+app.get("/", (req, res) => {
+  // Shopify proxy requests ALWAYS contain this header
+  if (!req.headers["x-shopify-shop-domain"]) {
+    return res.status(404).send("Not a proxy request");
+  }
+
+  res.status(200).set("Content-Type", "text/html").send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dermatics AI – Skin & Hair Analysis</title>
+</head>
+<body>
+  <div id="derma-ai-root"></div>
+
+  <script>
+    window.DERMA_AI_AUTO_START = true;
+  </script>
+
+  <script src="/proxy-assets/derma-ai.js"></script>
+</body>
+</html>
   `);
 });
 
-
-
-/* ============================================================
-   STATIC FILES FOR PROXY
-============================================================ */
-
-app.use(
-  "/proxy-assets",
-  express.static(join(process.cwd(), "proxy-assets"))
-);
 
 /* ============================================================
    SHOPIFY OAUTH & WEBHOOKS
