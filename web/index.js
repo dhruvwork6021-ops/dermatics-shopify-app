@@ -15,20 +15,6 @@ const STATIC_PATH =
 
 const app = express();
 
-/* ============================================================
-   SHOPIFY APP PROXY (PUBLIC PAGE)
-   URL: /apps/derma-ai
-============================================================ */
-/* ============================================================
-   APP PROXY ROUTE (PUBLIC – NO AUTH)
-   URL: /apps/derma-ai  and /apps/derma-ai/
-============================================================ */
-
-/* ============================================================
-   SHOPIFY APP PROXY ROOT HANDLER
-   Shopify forwards /apps/derma-ai  -->  /
-============================================================ */
-
 // Serve proxy assets
 app.use(
   "/proxy-assets",
@@ -40,30 +26,35 @@ app.use(
    Shopify calls "/" NOT "/apps/derma-ai"
 ============================================================ */
 
-app.get("/", (req, res) => {
+app.get("/", (req, res, next) => {
+  // Shopify App Proxy ALWAYS sends this header
+  if (!req.headers["x-shopify-shop-domain"]) {
+    return next(); // normal app traffic
+  }
+
   res.status(200).send(`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dermatics AI – Skin & Hair Analysis</title>
-</head>
-<body>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Dermatics AI</title>
+    </head>
+    <body>
 
-  <div id="derma-ai-root"></div>
+      <div id="derma-ai-root"></div>
 
-  <script>
-    // Auto-start AI flow on proxy page
-    window.DERMA_AI_AUTO_START = true;
-  </script>
+      <script>
+        window.DERMA_AI_AUTO_START = true;
+      </script>
 
-  <script src="/proxy-assets/derma-ai.js"></script>
+      <script src="/proxy-assets/derma-ai.js"></script>
 
-</body>
-</html>
+    </body>
+    </html>
   `);
 });
+
 
 
 
